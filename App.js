@@ -3,6 +3,7 @@ import { StyleSheet, Dimensions, Text, View, SafeAreaView, Button, TextInput, Sc
 import {
   LineChart
 } from 'react-native-chart-kit';
+import moment from 'moment';
 
 
 
@@ -12,8 +13,26 @@ export default function App() {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState(0);
   const [total, setTotal] = useState(0);
-  const [labels, setLabels] = useState([]);
-  const [dataPoints, setDataPoints] = useState([]);
+  const [data, setData] = useState(
+    [
+
+      {
+        [moment()]: 2000
+      },
+      {
+        [moment().subtract(1, 'days')]: 3500
+      },
+      {
+        [moment().subtract(2, 'days')]: 3500
+      },
+      {
+        [moment().subtract(3, 'days')]: 4500
+      },
+      {
+        [moment().subtract(4, 'days')]: 5500
+      }
+    ]
+  );
   const [gigs, setGigs] = useState([
     {
       description: 'Freelance job',
@@ -27,9 +46,25 @@ export default function App() {
     }
   ]);
 
-  useEffect(() => {
+  //console.log(data);
 
-  }, [dataPoints])
+  const getDates = () => {
+    const dates = data.map(pair => {
+      return Object.keys(pair)[0];
+    });
+    return dates;
+  };
+
+  const getAmounts = () => {
+    const amounts = data.map(pair => {
+      return Object.values(pair)[0];
+    });
+    return amounts;
+  };
+
+  //console.log(getDates());
+  //console.log(getAmounts());
+
 
   useEffect(() => {
     setTotal(gigs.reduce((total, gig) => total + Number(gig.amount), 0));
@@ -56,12 +91,9 @@ export default function App() {
         </Text>
         <LineChart
           data={ {
-            labels: [new Date(), "Tomorrow"],
+            labels: getDates(),
             datasets: [{
-              data: [
-                gigs[0].amount,
-                gigs[1].amount
-              ]
+              data: getAmounts()
             }]
           } }
           width={ Dimensions.get('window').width }
@@ -71,7 +103,7 @@ export default function App() {
             backgroundColor: '#e26a00',
             backgroundGradientFrom: '#fb8c00',
             backgroundGradientTo: '#ffa726',
-            decimalPlaces: 1,
+            decimalPlaces: null,
             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             style: {
               borderRadius: 16
