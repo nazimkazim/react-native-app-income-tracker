@@ -6,9 +6,6 @@ import {
 import moment from 'moment';
 
 
-
-
-
 export default function App() {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState(0);
@@ -17,22 +14,42 @@ export default function App() {
     [
 
       {
-        [moment()]: 2000
+        date: moment().format('LL'),
+        amount: 2000
       },
       {
-        [moment().subtract(1, 'days')]: 3500
+        date: moment().subtract(1, 'days').format('LL'),
+        amount: 3500
       },
       {
-        [moment().subtract(2, 'days')]: 3500
+        date: moment().subtract(1, 'days').format('LL'),
+        amount: 3500
       },
       {
-        [moment().subtract(3, 'days')]: 4500
+        date: moment().subtract(1, 'days').format('LL'),
+        amount: 4500
       },
       {
-        [moment().subtract(4, 'days')]: 5500
+        date: moment().subtract(4, 'days').format('LL'),
+        amount: 5500
       }
     ]
   );
+
+  const [transformedData, setTransformedData] = useState([]);
+
+  useEffect(() => {
+    setTransformedData(transformData(groupBy(data, 'date')));
+  }, [data]);
+
+
+  const groupBy = (array, key) =>
+    array.reduce((rv, x) => {
+      (rv[x[key]] = rv[x[key]] || []).push(x);
+      return rv;
+    }, {});
+
+
   const [gigs, setGigs] = useState([
     {
       description: 'Freelance job',
@@ -49,21 +66,33 @@ export default function App() {
   //console.log(data);
 
   const getDates = () => {
-    const dates = data.map(pair => {
-      return Object.keys(pair)[0];
+    const dates = transformedData.map(pair => {
+      return pair.date;
     });
     return dates;
   };
 
   const getAmounts = () => {
-    const amounts = data.map(pair => {
-      return Object.values(pair)[0];
+    const amounts = transformedData.map(pair => {
+      return pair.amount;
     });
     return amounts;
   };
 
+  const transformData = (groupedData) => {
+    const transformedArray = [];
+    Object.entries(groupedData).forEach(entry => {
+      const total = entry[1].reduce((acc, pair) => acc + pair.amount, 0);
+      transformedArray.push({ date: entry[0], amount: total });
+    });
+    const sortedArray = transformedArray.sort((a, b) => a['date'].diff(b['date']));
+    return transformedArray;
+  };
+
   //console.log(getDates());
   //console.log(getAmounts());
+  //console.log('Grouped values are', groupBy(data, 'date'));
+  //console.log('Transformed data', transformData(groupBy(data, 'date')));
 
 
   useEffect(() => {
@@ -141,7 +170,7 @@ export default function App() {
       </ScrollView>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   input: {
