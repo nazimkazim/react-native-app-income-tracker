@@ -83,10 +83,10 @@ export default function App() {
     const transformedArray = [];
     Object.entries(groupedData).forEach(entry => {
       const total = entry[1].reduce((acc, pair) => acc + pair.amount, 0);
-      transformedArray.push({ date: entry[0], amount: total });
+      transformedArray.push({ date: moment(entry[0]).format('MM/DD'), amount: total });
     });
-    const sortedArray = transformedArray.sort((a, b) => a['date'].diff(b['date']));
-    return transformedArray;
+    const sortedArray = transformedArray.sort((a, b) => moment(a['date']).diff(moment(b['date'])));
+    return sortedArray;
   };
 
   //console.log(getDates());
@@ -107,7 +107,16 @@ export default function App() {
     }]);
     setDescription('');
     setAmount('');
+    setData([
+      ...data,
+      {
+        date:moment().format('LL'),
+        amount:Number(amount)
+      }
+    ])
   };
+
+  
 
   return (
     <SafeAreaView>
